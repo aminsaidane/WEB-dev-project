@@ -1,4 +1,4 @@
-import { mockAnimals, mockVaccinations, mockAppointments, Vaccination, Appointment } from './mock-data';
+import {  Vaccination, Appointment,Animal } from './mock-data';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -6,11 +6,49 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Calendar, Syringe, FileText, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Calendar as CalendarComponent } from './ui/calendar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function VeterinarianDashboard() {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [mockAnimals, setMockAnimals] = useState<Animal[]>([]);
+  const [mockAppointments, setMockAppointments] = useState<Appointment[]>([]);
+  const [mockVaccinations, setMockVaccinations] = useState<Vaccination[]>([]);
 
+  useEffect(() => {
+  const fetchAll = async () => {
+    try {
+      const [animalsRes, appointmentsRes, vaccinationsRes] = await Promise.all([
+        axios.get("http://localhost:5000/animals"),
+        axios.get("http://localhost:5000/appointments"),
+        axios.get("http://localhost:5000/vaccinations"),
+      ]);
+
+      // Map appointments: extract animal name and id
+      const mappedAppointments = appointmentsRes.data.appointments.map((app: any) => ({
+        ...app,
+        animalName: app.animalId.name,
+        animalId: app.animalId._id,
+      }));
+
+      // Map vaccinations: extract animal name and id
+      const mappedVaccinations = vaccinationsRes.data.vaccinations.map((v: any) => ({
+        ...v,
+        animalName: v.animalId.name,
+        animalId: v.animalId._id,
+      }));
+
+      setMockAnimals(animalsRes.data.animals);
+      setMockAppointments(mappedAppointments);
+      setMockVaccinations(mappedVaccinations);
+    } catch (err) {
+      console.error("Failed to load doctor portal data:", err);
+    }
+  };
+
+  fetchAll();
+}, []);
+    console.log(mockAnimals,mockAppointments,mockVaccinations)
   const upcomingVaccinations = mockVaccinations.filter(v => v.status === 'Due Soon' || v.status === 'Overdue');
   const completedVaccinations = mockVaccinations.filter(v => v.status === 'Completed');
   const upcomingAppointments = mockAppointments.filter(a => a.status === 'Scheduled');
@@ -100,7 +138,7 @@ export default function VeterinarianDashboard() {
                 </TableHeader>
                 <TableBody>
                   {upcomingAppointments.map((apt) => (
-                    <TableRow key={apt.id}>
+                    <TableRow key={apt._id}>
                       <TableCell>
                         <div>
                           <div className="text-[#2C3E50]">{new Date(apt.date).toLocaleDateString()}</div>
@@ -145,9 +183,9 @@ export default function VeterinarianDashboard() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {upcomingVaccinations.map((vac) => {
-                  const animal = mockAnimals.find(a => a.id === vac.animalId);
+                  const animal = mockAnimals.find(a => a._id === vac.animalId);
                   return (
-                    <div key={vac.id} className="p-3 border border-[#BDC3C7] rounded-lg space-y-2">
+                    <div key={vac._id} className="p-3 border border-[#BDC3C7] rounded-lg space-y-2">
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="text-[#2C3E50]">{animal?.name}</h4>
@@ -247,9 +285,9 @@ export default function VeterinarianDashboard() {
                 </TableHeader>
                 <TableBody>
                   {completedVaccinations.slice(0, 5).map((vac) => {
-                    const animal = mockAnimals.find(a => a.id === vac.animalId);
+                    const animal = mockAnimals.find(a => a._id === vac.animalId);
                     return (
-                      <TableRow key={vac.id}>
+                      <TableRow key={vac._id}>
                         <TableCell>{animal?.name}</TableCell>
                         <TableCell>{vac.vaccineName}</TableCell>
                         <TableCell>{new Date(vac.dateAdministered).toLocaleDateString()}</TableCell>
@@ -276,7 +314,7 @@ export default function VeterinarianDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {mockAnimals.map((animal) => (
-              <Card key={animal.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card key={animal._id} className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <img 
@@ -332,7 +370,7 @@ export default function VeterinarianDashboard() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {upcomingAppointments.map((apt) => (
-                  <div key={apt.id} className="p-3 border border-[#BDC3C7] rounded-lg">
+                  <div key={apt._id} className="p-3 border border-[#BDC3C7] rounded-lg">
                     <div className="flex justify-between items-start">
                       <div className="flex gap-3">
                         <div className="bg-[#1ABC9C]/10 p-2 rounded">

@@ -1,4 +1,4 @@
-import { mockAnimals, Animal } from './mock-data';
+import { Animal } from './mock-data';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -6,19 +6,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Search, Filter, Heart, MapPin } from 'lucide-react';
 import AnimalCard from './AnimalCard';
-import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
-
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 export default function AdopterPortal() {
+  const [mockAnimals,setMockanimals] = useState<Animal[]>([])
   const [searchQuery, setSearchQuery] = useState('');
   const [speciesFilter, setSpeciesFilter] = useState<string>('all');
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
 
+useEffect(() => {
+    const loadAnimals = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/animals");
+        console.log(res.data.animals)
+        setMockanimals(res.data.animals)
+      } catch (err) {
+        console.error("Error fetching animals:", err);
+      } 
+    };
+
+    loadAnimals();
+  }, []);
+  console.log(mockAnimals)
   const availableAnimals = mockAnimals.filter(animal => animal.status === 'Available');
 
   const filteredAnimals = availableAnimals.filter(animal => {
@@ -28,7 +43,7 @@ export default function AdopterPortal() {
     return matchesSearch && matchesSpecies;
   });
 
-  const favoriteAnimals = mockAnimals.filter(animal => favorites.includes(animal.id));
+  const favoriteAnimals = mockAnimals.filter(animal => favorites.includes(animal._id));
 
   const handleAdopt = (animal: Animal) => {
     setSelectedAnimal(animal);
@@ -118,7 +133,7 @@ export default function AdopterPortal() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredAnimals.map(animal => (
                 <AnimalCard
-                  key={animal.id}
+                  key={animal._id}
                   animal={animal}
                   onViewDetails={setSelectedAnimal}
                   onAdopt={handleAdopt}
@@ -148,7 +163,7 @@ export default function AdopterPortal() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {favoriteAnimals.map(animal => (
                 <AnimalCard
-                  key={animal.id}
+                  key={animal._id}
                   animal={animal}
                   onViewDetails={setSelectedAnimal}
                   onAdopt={handleAdopt}
@@ -253,7 +268,7 @@ export default function AdopterPortal() {
                 <div className="space-y-2">
                   {selectedAnimal.vaccinations.length > 0 ? (
                     selectedAnimal.vaccinations.map((vac) => (
-                      <div key={vac.id} className="flex justify-between items-center p-2 bg-[#ECF0F1] rounded">
+                      <div key={vac._id} className="flex justify-between items-center p-2 bg-[#ECF0F1] rounded">
                         <div>
                           <p className="text-[#2C3E50]">{vac.vaccineName}</p>
                           <p className="text-xs text-[#7F8C8D]">
@@ -276,13 +291,13 @@ export default function AdopterPortal() {
                   variant="outline" 
                   className="flex-1"
                   onClick={() => setFavorites(prev => 
-                    prev.includes(selectedAnimal.id) 
-                      ? prev.filter(id => id !== selectedAnimal.id)
-                      : [...prev, selectedAnimal.id]
+                    prev.includes(selectedAnimal._id) 
+                      ? prev.filter(id => id !== selectedAnimal._id)
+                      : [...prev, selectedAnimal._id]
                   )}
                 >
-                  <Heart className={`h-4 w-4 mr-2 ${favorites.includes(selectedAnimal.id) ? 'fill-current' : ''}`} />
-                  {favorites.includes(selectedAnimal.id) ? 'Remove from Favorites' : 'Add to Favorites'}
+                  <Heart className={`h-4 w-4 mr-2 ${favorites.includes(selectedAnimal._id) ? 'fill-current' : ''}`} />
+                  {favorites.includes(selectedAnimal._id) ? 'Remove from Favorites' : 'Add to Favorites'}
                 </Button>
                 {selectedAnimal.status === 'Available' && (
                   <Button 

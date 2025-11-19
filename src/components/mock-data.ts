@@ -1,7 +1,7 @@
 // Mock data for PawsCare system
 
 export interface Animal {
-  id: string;
+  _id: string;
   name: string;
   species: 'Dog' | 'Cat' | 'Rabbit' | 'Other';
   breed: string;
@@ -19,7 +19,7 @@ export interface Animal {
 }
 
 export interface Vaccination {
-  id: string;
+  _id: string;
   animalId: string;
   vaccineName: string;
   dateAdministered: string;
@@ -30,8 +30,8 @@ export interface Vaccination {
 }
 
 export interface AdoptionApplication {
-  id: string;
-  animalId: string;
+  _id: string;
+  animald: string;
   animalName: string;
   applicantName: string;
   applicantEmail: string;
@@ -45,8 +45,8 @@ export interface AdoptionApplication {
 }
 
 export interface Appointment {
-  id: string;
-  animalId: string;
+  _id: string;
+  animald: string;
   animalName: string;
   type: 'Vaccination' | 'Checkup' | 'Surgery' | 'Consultation';
   date: string;
@@ -58,31 +58,31 @@ export interface Appointment {
 
 export const mockAnimals: Animal[] = [
   {
-    id: 'A001',
+    _id: 'A001',
     name: 'Max',
     species: 'Dog',
     breed: 'Golden Retriever',
     age: '3 years',
     gender: 'Male',
     weight: '30 kg',
-    imageUrl: 'https://images.unsplash.com/photo-1689185083033-fd8512790d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnb2xkZW4lMjByZXRyaWV2ZXIlMjBkb2d8ZW58MXx8fHwxNzYxOTQ2NTM4fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    imageUrl: 'https://images.unsplash.com/photo-1689185083033-fd8512790d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ix_id=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnb2xkZW4lMjByZXRyaWV2ZXIlMjBkb2d8ZW58MXx8fHwxNzYxOTQ2NTM4fDA&ixlib=rb-4.1.0&q=80&w=1080',
     status: 'Available',
     location: 'Downtown Shelter - Wing A',
-    description: 'Friendly and energetic Golden Retriever. Great with kids and other pets. Loves to play fetch and go for long walks.',
+    description: 'Friendly and energetic Golden Retriever. Great with k_ids and other pets. Loves to play fetch and go for long walks.',
     admissionDate: '2025-09-15',
     medicalHistory: ['Neutered', 'Heartworm negative', 'Dental cleaning completed'],
     vaccinations: [],
-    temperament: ['Friendly', 'Energetic', 'Good with kids', 'Trained']
+    temperament: ['Friendly', 'Energetic', 'Good with k_ids', 'Trained']
   },
   {
-    id: 'A002',
+    _id: 'A002',
     name: 'Luna',
     species: 'Cat',
     breed: 'Tabby Mix',
     age: '2 years',
     gender: 'Female',
     weight: '4 kg',
-    imageUrl: 'https://images.unsplash.com/photo-1625192494235-21e8821040c1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWJieSUyMGNhdCUyMHBvcnRyYWl0fGVufDF8fHx8MTc2MTk2NTU0MXww&ixlib=rb-4.1.0&q=80&w=1080',
+    imageUrl: 'https://images.unsplash.com/photo-1625192494235-21e8821040c1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ix_id=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWJieSUyMGNhdCUyMHBvcnRyYWl0fGVufDF8fHx8MTc2MTk2NTU0MXww&ixlib=rb-4.1.0&q=80&w=1080',
     status: 'Available',
     location: 'Downtown Shelter - Wing B',
     description: 'Sweet and affectionate tabby cat. Enjoys cuddles and quiet environments. Perfect lap cat for a calm household.',
@@ -92,14 +92,14 @@ export const mockAnimals: Animal[] = [
     temperament: ['Calm', 'Affectionate', 'Indoor cat', 'Quiet']
   },
   {
-    id: 'A003',
+    _id: 'A003',
     name: 'Bella',
     species: 'Dog',
     breed: 'Beagle',
     age: '5 years',
     gender: 'Female',
     weight: '12 kg',
-    imageUrl: 'https://images.unsplash.com/photo-1710927865281-9cf4d7ee2782?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWFnbGUlMjBwdXBweXxlbnwxfHx8fDE3NjE5MTEwOTR8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    imageUrl: 'https://images.unsplash.com/photo-1710927865281-9cf4d7ee2782?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ix_id=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWFnbGUlMjBwdXBweXxlbnwxfHx8fDE3NjE5MTEwOTR8MA&ixlib=rb-4.1.0&q=80&w=1080',
     status: 'Pending',
     location: 'Downtown Shelter - Wing A',
     description: 'Curious and vocal Beagle with a great nose. Needs a home with a fenced yard. Good with other dogs.',
@@ -109,14 +109,14 @@ export const mockAnimals: Animal[] = [
     temperament: ['Curious', 'Vocal', 'Good with dogs', 'Needs exercise']
   },
   {
-    id: 'A004',
+    _id: 'A004',
     name: 'Oliver',
     species: 'Cat',
     breed: 'Persian',
     age: '4 years',
     gender: 'Male',
     weight: '5 kg',
-    imageUrl: 'https://images.unsplash.com/photo-1585137173132-cf49e10ad27d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXJzaWFuJTIwY2F0fGVufDF8fHx8MTc2MTkyMjA4M3ww&ixlib=rb-4.1.0&q=80&w=1080',
+    imageUrl: 'https://images.unsplash.com/photo-1585137173132-cf49e10ad27d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ix_id=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXJzaWFuJTIwY2F0fGVufDF8fHx8MTc2MTkyMjA4M3ww&ixlib=rb-4.1.0&q=80&w=1080',
     status: 'Medical Hold',
     location: 'Veterinary Ward',
     description: 'Elegant Persian cat recovering from minor dental procedure. Needs daily grooming due to long coat.',
@@ -126,14 +126,14 @@ export const mockAnimals: Animal[] = [
     temperament: ['Calm', 'Needs grooming', 'Prefers quiet', 'Gentle']
   },
   {
-    id: 'A005',
+    _id: 'A005',
     name: 'Rocky',
     species: 'Dog',
     breed: 'German Shepherd',
     age: '6 years',
     gender: 'Male',
     weight: '35 kg',
-    imageUrl: 'https://images.unsplash.com/photo-1605725657590-b2cf0d31b1a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnZXJtYW4lMjBzaGVwaGVyZHxlbnwxfHx8fDE3NjE5Mjk1Mjl8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    imageUrl: 'https://images.unsplash.com/photo-1605725657590-b2cf0d31b1a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ix_id=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnZXJtYW4lMjBzaGVwaGVyZHxlbnwxfHx8fDE3NjE5Mjk1Mjl8MA&ixlib=rb-4.1.0&q=80&w=1080',
     status: 'Available',
     location: 'Downtown Shelter - Wing A',
     description: 'Loyal and intelligent German Shepherd. Trained for basic commands. Best as only pet in household.',
@@ -143,17 +143,17 @@ export const mockAnimals: Animal[] = [
     temperament: ['Intelligent', 'Loyal', 'Trained', 'Needs experienced owner']
   },
   {
-    id: 'A006',
+    _id: 'A006',
     name: 'Snowball',
     species: 'Rabbit',
     breed: 'Holland Lop',
     age: '1 year',
     gender: 'Female',
     weight: '1.5 kg',
-    imageUrl: 'https://images.unsplash.com/photo-1695826809809-facc4eb4e85d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyYWJiaXQlMjBidW5ueXxlbnwxfHx8fDE3NjE5MDQzMTd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    imageUrl: 'https://images.unsplash.com/photo-1695826809809-facc4eb4e85d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ix_id=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyYWJiaXQlMjB_idW5ueXxlbnwxfHx8fDE3NjE5MDQzMTd8MA&ixlib=rb-4.1.0&q=80&w=1080',
     status: 'Available',
     location: 'Small Animals Ward',
-    description: 'Adorable Holland Lop rabbit. Very social and enjoys being handled. Needs daily exercise outside cage.',
+    description: 'Adorable Holland Lop rabbit. Very social and enjoys being handled. Needs daily exercise outs_ide cage.',
     admissionDate: '2025-10-15',
     medicalHistory: ['Spayed', 'Vaccinated against RHD', 'Health check completed'],
     vaccinations: [],
@@ -162,23 +162,23 @@ export const mockAnimals: Animal[] = [
 ];
 
 export const mockVaccinations: Vaccination[] = [
-  { id: 'V001', animalId: 'A001', vaccineName: 'DHPP', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09', status: 'Completed' },
-  { id: 'V002', animalId: 'A001', vaccineName: 'Rabies', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09', status: 'Completed' },
-  { id: 'V003', animalId: 'A001', vaccineName: 'Bordetella', dateAdministered: '2025-09-20', nextDueDate: '2025-11-15', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'BORD-2025-09', status: 'Due Soon' },
-  { id: 'V004', animalId: 'A002', vaccineName: 'FVRCP', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10', status: 'Completed' },
-  { id: 'V005', animalId: 'A002', vaccineName: 'Rabies', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'RAB-2025-10', status: 'Completed' },
-  { id: 'V006', animalId: 'A003', vaccineName: 'DHPP', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-08', status: 'Completed' },
-  { id: 'V007', animalId: 'A003', vaccineName: 'Rabies', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-08', status: 'Completed' },
-  { id: 'V008', animalId: 'A004', vaccineName: 'FVRCP', dateAdministered: '2025-10-12', nextDueDate: '2026-10-12', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10B', status: 'Completed' },
-  { id: 'V009', animalId: 'A005', vaccineName: 'DHPP', dateAdministered: '2025-09-10', nextDueDate: '2025-11-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09B', status: 'Due Soon' },
-  { id: 'V010', animalId: 'A005', vaccineName: 'Rabies', dateAdministered: '2025-09-10', nextDueDate: '2026-09-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09B', status: 'Completed' },
-  { id: 'V011', animalId: 'A006', vaccineName: 'RHD', dateAdministered: '2025-10-18', nextDueDate: '2026-10-18', veterinarian: 'Dr. Emily Rodriguez', batchNumber: 'RHD-2025-10', status: 'Completed' },
+  { _id: 'V001', animalId: 'A001', vaccineName: 'DHPP', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09', status: 'Completed' },
+  { _id: 'V002', animalId: 'A001', vaccineName: 'Rabies', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09', status: 'Completed' },
+  { _id: 'V003', animalId: 'A001', vaccineName: 'Bordetella', dateAdministered: '2025-09-20', nextDueDate: '2025-11-15', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'BORD-2025-09', status: 'Due Soon' },
+  { _id: 'V004', animalId: 'A002', vaccineName: 'FVRCP', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10', status: 'Completed' },
+  { _id: 'V005', animalId: 'A002', vaccineName: 'Rabies', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'RAB-2025-10', status: 'Completed' },
+  { _id: 'V006', animalId: 'A003', vaccineName: 'DHPP', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-08', status: 'Completed' },
+  { _id: 'V007', animalId: 'A003', vaccineName: 'Rabies', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-08', status: 'Completed' },
+  { _id: 'V008', animalId: 'A004', vaccineName: 'FVRCP', dateAdministered: '2025-10-12', nextDueDate: '2026-10-12', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10B', status: 'Completed' },
+  { _id: 'V009', animalId: 'A005', vaccineName: 'DHPP', dateAdministered: '2025-09-10', nextDueDate: '2025-11-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09B', status: 'Due Soon' },
+  { _id: 'V010', animalId: 'A005', vaccineName: 'Rabies', dateAdministered: '2025-09-10', nextDueDate: '2026-09-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09B', status: 'Completed' },
+  { _id: 'V011', animalId: 'A006', vaccineName: 'RHD', dateAdministered: '2025-10-18', nextDueDate: '2026-10-18', veterinarian: 'Dr. Emily Rodriguez', batchNumber: 'RHD-2025-10', status: 'Completed' },
 ];
 
 export const mockApplications: AdoptionApplication[] = [
   {
-    id: 'APP001',
-    animalId: 'A001',
+    _id: 'APP001',
+    animald: 'A001',
     animalName: 'Max',
     applicantName: 'Jennifer Williams',
     applicantEmail: 'jwilliams@email.com',
@@ -191,8 +191,8 @@ export const mockApplications: AdoptionApplication[] = [
     hasOtherPets: true
   },
   {
-    id: 'APP002',
-    animalId: 'A003',
+    _id: 'APP002',
+    animald: 'A003',
     animalName: 'Bella',
     applicantName: 'Michael Chen',
     applicantEmail: 'mchen@email.com',
@@ -205,8 +205,8 @@ export const mockApplications: AdoptionApplication[] = [
     hasOtherPets: false
   },
   {
-    id: 'APP003',
-    animalId: 'A002',
+    _id: 'APP003',
+    animald: 'A002',
     animalName: 'Luna',
     applicantName: 'Sarah Johnson',
     applicantEmail: 'sjohnson@email.com',
@@ -219,10 +219,10 @@ export const mockApplications: AdoptionApplication[] = [
     hasOtherPets: false
   },
   {
-    id: 'APP004',
-    animalId: 'A005',
+    _id: 'APP004',
+    animald: 'A005',
     animalName: 'Rocky',
-    applicantName: 'David Martinez',
+    applicantName: 'Dav_id Martinez',
     applicantEmail: 'dmartinez@email.com',
     applicantPhone: '555-0126',
     address: '321 Elm Street, Springfield',
@@ -236,8 +236,8 @@ export const mockApplications: AdoptionApplication[] = [
 
 export const mockAppointments: Appointment[] = [
   {
-    id: 'APT001',
-    animalId: 'A001',
+    _id: 'APT001',
+    animald: 'A001',
     animalName: 'Max',
     type: 'Vaccination',
     date: '2025-11-15',
@@ -247,8 +247,8 @@ export const mockAppointments: Appointment[] = [
     notes: 'Bordetella booster due'
   },
   {
-    id: 'APT002',
-    animalId: 'A004',
+    _id: 'APT002',
+    animald: 'A004',
     animalName: 'Oliver',
     type: 'Checkup',
     date: '2025-11-05',
@@ -258,8 +258,8 @@ export const mockAppointments: Appointment[] = [
     notes: 'Post-surgery follow-up'
   },
   {
-    id: 'APT003',
-    animalId: 'A005',
+    _id: 'APT003',
+    animald: 'A005',
     animalName: 'Rocky',
     type: 'Vaccination',
     date: '2025-11-10',
@@ -269,8 +269,8 @@ export const mockAppointments: Appointment[] = [
     notes: 'DHPP booster'
   },
   {
-    id: 'APT004',
-    animalId: 'A006',
+    _id: 'APT004',
+    animald: 'A006',
     animalName: 'Snowball',
     type: 'Checkup',
     date: '2025-11-08',
@@ -283,7 +283,7 @@ export const mockAppointments: Appointment[] = [
 
 // Assign vaccinations to animals
 mockAnimals.forEach(animal => {
-  animal.vaccinations = mockVaccinations.filter(v => v.animalId === animal.id);
+  animal.vaccinations = mockVaccinations.filter(v => v.animalId === animal._id);
 });
 
 export const analyticsData = {

@@ -1,4 +1,4 @@
-import { mockAnimals, mockApplications, analyticsData, Animal, AdoptionApplication } from './mock-data';
+import {  analyticsData, Animal, AdoptionApplication } from './mock-data';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -8,12 +8,40 @@ import { PawPrint, Users, CheckCircle, Clock, TrendingUp, AlertCircle } from 'lu
 import AnimalCard from './AnimalCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-
+import  axios  from 'axios';
 export default function ShelterManagerDashboard() {
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
+  const [mockAnimals, setMockAnimals] = useState<Animal[]>([]);
+  const [mockApplications, setMockApplications] = useState<AdoptionApplication[]>([]);
 
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const [animalsRes, appsRes] = await Promise.all([
+        axios.get("http://localhost:5000/animals"),
+        axios.get("http://localhost:5000/applications"),
+      ]);
+
+      // Map applications: extract animal name and id from populated animalId
+      const mappedApplications = appsRes.data.applications.map((app: any) => ({
+        ...app,
+        animalName: app.animalId.name,
+        animalId: app.animalId._id,
+      }));
+
+      setMockAnimals(animalsRes.data.animals);
+      setMockApplications(mappedApplications);
+    } catch (error) {
+      console.error("Error loading shelter panel data:", error);
+    }
+  };
+
+  fetchData();
+}, []);
+  console.log(mockAnimals)
+  console.log(mockApplications)
   const COLORS = ['#1ABC9C', '#3498DB', '#9B59B6', '#E67E22'];
 
   const stats = [
@@ -108,7 +136,7 @@ export default function ShelterManagerDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {mockAnimals.map(animal => (
               <AnimalCard 
-                key={animal.id} 
+                key={animal._id} 
                 animal={animal}
                 onViewDetails={setSelectedAnimal}
                 showActions={false}
@@ -141,7 +169,7 @@ export default function ShelterManagerDashboard() {
                 </TableHeader>
                 <TableBody>
                   {mockApplications.map((app) => (
-                    <TableRow key={app.id}>
+                    <TableRow key={app._id}>
                       <TableCell>{app.animalName}</TableCell>
                       <TableCell>{app.applicantName}</TableCell>
                       <TableCell>
@@ -267,7 +295,7 @@ export default function ShelterManagerDashboard() {
                 <div className="space-y-2">
                   {selectedAnimal.vaccinations.length > 0 ? (
                     selectedAnimal.vaccinations.map((vac) => (
-                      <div key={vac.id} className="flex justify-between items-center p-2 bg-[#ECF0F1] rounded">
+                      <div key={vac._id} className="flex justify-between items-center p-2 bg-[#ECF0F1] rounded">
                         <span className="text-[#2C3E50]">{vac.vaccineName}</span>
                         <Badge className={
                           vac.status === 'Completed' ? 'bg-[#27AE60] text-white' :
