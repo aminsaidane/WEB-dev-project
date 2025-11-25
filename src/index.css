@@ -1671,6 +1671,9 @@
   .text-white {
     color: var(--color-white);
   }
+   .text-black {
+    color: var(--color-black);
+  }
 
   .underline-offset-4 {
     text-underline-offset: 4px;

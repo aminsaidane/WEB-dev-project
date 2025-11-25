@@ -1,4 +1,4 @@
-import { Animal } from './mock-data';
+import { Animal,AdoptionApplication } from './mock-data';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -10,30 +10,78 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import axios from 'axios';
-export default function AdopterPortal() {
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+interface UserData {
+  name: string;
+  email: string;
+  role: 'shelter' | 'vet' | 'adopter' | 'admin';
+}
+interface AdopterPortalProps {
+  user: UserData | null;
+  setUser: React.Dispatch<React.SetStateAction<UserData | null>>;
+}
+export default function AdopterPortal({user,setUser}: AdopterPortalProps) {
   const [mockAnimals,setMockanimals] = useState<Animal[]>([])
   const [searchQuery, setSearchQuery] = useState('');
   const [speciesFilter, setSpeciesFilter] = useState<string>('all');
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [userApplications, setUserApplications] = useState<AdoptionApplication[]>([]);
+
+  const [applicationData, setApplicationData] = useState({
+  fullName: "",
+  email: "",
+  phone: "",
+  age: "",
+  address: "",
+  homeType: "",
+  experience: "",
+  reason: "",
+  otherPets: "",
+});
 
 useEffect(() => {
     const loadAnimals = async () => {
       try {
         const res = await axios.get("http://localhost:5000/animals");
-        console.log(res.data.animals)
         setMockanimals(res.data.animals)
       } catch (err) {
         console.error("Error fetching animals:", err);
       } 
     };
+    const fetchApplications = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/applications/my", {
+        withCredentials: true, // make sure the session cookie is sent
+      });
+     
+      setUserApplications(res.data.applications); // adjust based on your API response
+    } catch (err) {
+      console.error("Error fetching user applications:", err);
+    }
+  };
+   const fetchFavorites = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/animals/favorites/my", {
+        withCredentials: true,
+      });
 
+      setFavorites(res.data.favoriteAnimalIds); // array of ObjectIds
+    } catch (err) {
+      console.error("Failed to fetch favorite animals:", err);
+    }
+  };
+  
     loadAnimals();
+    fetchApplications();
+       fetchFavorites();
   }, []);
-  console.log(mockAnimals)
+    // console.log(mockAnimals)
+    // console.log(userApplications)
+    // console.log(favorites)
   const availableAnimals = mockAnimals.filter(animal => animal.status === 'Available');
 
   const filteredAnimals = availableAnimals.filter(animal => {
@@ -50,12 +98,78 @@ useEffect(() => {
     setShowApplicationForm(true);
   };
 
-  const handleSubmitApplication = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Application submitted for ${selectedAnimal?.name}! Our team will review it shortly.`);
+  const handleSubmitApplication = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!selectedAnimal) return;
+
+  try {
+    // Send POST request to backend
+    await axios.post(
+      "http://localhost:5000/applications",
+      {
+        ...applicationData,
+        animalId: selectedAnimal._id, // associate with selected animal
+      },
+      {
+        withCredentials: true, // include session cookie
+      }
+    );
+
+    alert(`Application submitted for ${selectedAnimal.name}! Our team will review it shortly.`);
+
+    // Reset form
+    setApplicationData({
+      fullName: "",
+      email: "",
+      phone: "",
+      age: "",
+      address: "",
+      homeType: "",
+      experience: "",
+      reason: "",
+      otherPets: "",
+    });
     setShowApplicationForm(false);
     setSelectedAnimal(null);
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Failed to submit application. Please try again.");
+  }
+};
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const { id, value } = e.target;
+  setApplicationData(prev => ({
+    ...prev,
+    [id]: value
+  }));
+};
+const addFavorite = async (animalId: string) => {
+  try {
+    const res = await axios.put(
+      `http://localhost:5000/animals/${animalId}/favoriteAnimals`,
+      {},
+      { withCredentials: true }
+    );
+
+    // Update state with the new favorites array
+    setFavorites(res.data.favoriteAnimalIds);
+  } catch (err) {
+    console.error("Failed to add favorite:", err);
+  }
+};
+const removeFavorite = async (animalId: string) => {
+  try {
+    const res = await axios.delete(
+      `http://localhost:5000/animals/${animalId}/favoriteAnimals`,
+      { withCredentials: true }
+    );
+
+    setFavorites(res.data.favoriteAnimalIds);
+  } catch (err) {
+    console.error("Failed to remove favorite:", err);
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -137,6 +251,9 @@ useEffect(() => {
                   animal={animal}
                   onViewDetails={setSelectedAnimal}
                   onAdopt={handleAdopt}
+                  addFavorite={addFavorite}
+                  removeFavorite={removeFavorite}
+                  favorite={favorites.includes(animal._id) ? true:false}
                 />
               ))}
             </div>
@@ -167,6 +284,9 @@ useEffect(() => {
                   animal={animal}
                   onViewDetails={setSelectedAnimal}
                   onAdopt={handleAdopt}
+                   addFavorite={addFavorite}
+                  removeFavorite={removeFavorite}
+                  favorite={favorites.includes(animal._id) ? true:false}
                 />
               ))}
             </div>
@@ -188,6 +308,7 @@ useEffect(() => {
 
         <TabsContent value="applications" className="space-y-4">
           <Card>
+            {!userApplications? 
             <CardContent className="p-8 text-center">
               <div className="bg-[#ECF0F1] p-4 rounded-lg inline-block mb-4">
                 <svg className="h-12 w-12 text-[#7F8C8D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,6 +320,44 @@ useEffect(() => {
                 When you apply to adopt an animal, you'll be able to track your application status here
               </p>
             </CardContent>
+              : <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Animal</TableHead>
+                    <TableHead>Applicant</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Submitted</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {userApplications.map((app) => (
+                    <TableRow key={app._id}>
+                      <TableCell>{app.animalId.name}</TableCell>
+                      <TableCell>{app.applicantName}</TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <div>{app.applicantEmail}</div>
+                          <div className="text-[#7F8C8D]">{app.applicantPhone}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{new Date(app.submittedDate).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={
+                          app.status === 'Approved' ? 'bg-[#27AE60] text-white' :
+                          app.status === 'Interview Scheduled' ? 'bg-[#3498DB] text-white' :
+                          app.status === 'Rejected' ? 'bg-[#E74C3C] text-white' :
+                          'bg-[#F39C12] text-white'
+                        }>
+                          {app.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>}
           </Card>
         </TabsContent>
       </Tabs>
@@ -290,11 +449,7 @@ useEffect(() => {
                 <Button 
                   variant="outline" 
                   className="flex-1"
-                  onClick={() => setFavorites(prev => 
-                    prev.includes(selectedAnimal._id) 
-                      ? prev.filter(id => id !== selectedAnimal._id)
-                      : [...prev, selectedAnimal._id]
-                  )}
+                 onClick={favorites.includes(selectedAnimal._id) ? ()=>{removeFavorite(selectedAnimal._id)}: ()=>{addFavorite(selectedAnimal._id)} }
                 >
                   <Heart className={`h-4 w-4 mr-2 ${favorites.includes(selectedAnimal._id) ? 'fill-current' : ''}`} />
                   {favorites.includes(selectedAnimal._id) ? 'Remove from Favorites' : 'Add to Favorites'}
@@ -326,33 +481,36 @@ useEffect(() => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="fullName">Full Name *</Label>
-                <Input id="fullName" required className="bg-white" />
+                <Input id="fullName" required className="bg-white"  value={applicationData.fullName} onChange={handleChange}/>
               </div>
               <div>
                 <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" required className="bg-white" />
+                <Input id="email" type="email" required className="bg-white" value={applicationData.email} onChange={handleChange} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="phone">Phone Number *</Label>
-                <Input id="phone" type="tel" required className="bg-white" />
+                <Input id="phone" type="tel" required className="bg-white" value={applicationData.phone} onChange={handleChange} />
               </div>
               <div>
                 <Label htmlFor="age">Age *</Label>
-                <Input id="age" type="number" required className="bg-white" />
+                <Input id="age" type="number" required className="bg-white" value={applicationData.age} onChange={handleChange} />
               </div>
             </div>
 
             <div>
               <Label htmlFor="address">Full Address *</Label>
-              <Input id="address" required className="bg-white" />
+              <Input id="address" required className="bg-white" value={applicationData.address} onChange={handleChange} />
             </div>
 
             <div>
               <Label htmlFor="homeType">Type of Home *</Label>
-              <Select required>
+              <Select required value={applicationData.homeType}
+               onValueChange={(value: string) =>
+      setApplicationData(prev => ({ ...prev, homeType: value }))
+    }>
                 <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Select home type" />
                 </SelectTrigger>
@@ -372,6 +530,7 @@ useEffect(() => {
                 required 
                 placeholder="Please describe your experience with pets..."
                 className="bg-white"
+                value={applicationData.experience} onChange={handleChange}
               />
             </div>
 
@@ -382,6 +541,7 @@ useEffect(() => {
                 required 
                 placeholder="Tell us why you'd be a great fit..."
                 className="bg-white"
+                value={applicationData.reason} onChange={handleChange}
               />
             </div>
 
@@ -391,6 +551,7 @@ useEffect(() => {
                 id="otherPets" 
                 placeholder="If yes, please describe them..."
                 className="bg-white"
+                value={applicationData.otherPets} onChange={handleChange}
               />
             </div>
 

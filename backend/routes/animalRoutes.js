@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router()
 const Animal = require('../models/Animal')
-
+const User = require('../models/User');
 
 router.get('/', async (req,res)=>{
     try{
@@ -20,7 +20,7 @@ const animalId = req.params.id;
 try{
     const foundAnimal = await Animal.findById(animalId);
     if(foundAnimal){
-         res.status(200).json({user:foundAnimal})
+         res.status(200).json({animal:foundAnimal})
     }else{
         res.status(404).json({msg:"No animal found"})
     }
@@ -41,7 +41,7 @@ try{
     }else{
         const newAnimal = new Animal(animal)
         console.log(newAnimal)
-        await Animal.save();
+        await newAnimal.save();
         res.status(200).json({animal:newAnimal, msg:"User added successfully"})
     }
 }catch(err){
@@ -73,7 +73,74 @@ router.delete('/:id',async(req,res) =>{
     }
 }
 )
+router.get("/favorites/my", async (req, res) => {
+  try {
+    const userId = req.user._id; // or however you store logged-in user
+    console.log(userId)
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
+    // fetch user and populate favoriteAnimals
+    const user = await User.findById(userId)
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // return the favorite animals
+    res.json({ favoriteAnimalIds: user.favoriteAnimals });
+  } catch (err) {
+    console.error("Error fetching favorites:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+router.put("/:animalId/favoriteAnimals", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { animalId } = req.params;
+    console.log(animalId)
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Add to favorites only if not already present
+    if (!user.favoriteAnimals.includes(animalId)) {
+      user.favoriteAnimals.push(animalId);
+      await user.save();
+    }
+
+    res.json({ favoriteAnimalIds: user.favoriteAnimals });
+  } catch (err) {
+    console.error("Error adding favorite animal:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.delete("/:animalId/favoriteAnimals", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { animalId } = req.params;
+
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Remove animalId if it exists
+    user.favoriteAnimals = user.favoriteAnimals.filter(
+      (id) => id.toString() !== animalId
+    );
+
+    await user.save();
+
+    res.json({ favoriteAnimalIds: user.favoriteAnimals });
+  } catch (err) {
+    console.error("Error removing favorite animal:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { PawPrint, Heart, Users, Shield, Stethoscope } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 interface LoginPageProps {
   onLogin: (role: 'shelter' | 'vet' | 'adopter' | 'admin', userData: { name: string; email: string }) => void;
 }
@@ -19,7 +19,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const [signupName, setSignupName] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
-
+  
   const roles = [
     {
       id: 'adopter',
@@ -56,24 +56,61 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   ];
   const navigate = useNavigate()
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Mock login 
-    onLogin(selectedRole, {
-      name: 'Demo User',
-      email: loginEmail
-    });
-    navigate(`/${selectedRole}`)
-  };
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Mock signup 
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/auth/login",
+      {
+        email: loginEmail,
+        password: loginPassword,
+        role: selectedRole
+      },
+      { withCredentials: true }
+    );
+
+    console.log("Login success:", res.data);
+
     onLogin(selectedRole, {
-      name: signupName,
-      email: signupEmail
+      name: res.data.user.fullName,
+      email: res.data.user.email
     });
-  };
+
+    navigate(`/${selectedRole}`);
+
+  } catch (err: any) {
+    console.error("Login error:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Login failed");
+  }
+};
+
+  const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const res = await axios.post("http://localhost:5000/auth/signup", {
+      fullName: signupName,
+      email: signupEmail,
+      password: signupPassword,
+      role: selectedRole
+    }, { withCredentials: true });
+
+    console.log("Signup successful:", res.data);
+
+    // Log user in automatically after signup
+    onLogin(selectedRole, {
+      name: res.data.user.fullName,
+      email: res.data.user.email
+    });
+
+    navigate(`/${selectedRole}`);
+
+  } catch (err: any) {
+    console.error("Signup error:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Signup failed");
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1ABC9C] to-[#2C3E50] flex items-center justify-center p-4">

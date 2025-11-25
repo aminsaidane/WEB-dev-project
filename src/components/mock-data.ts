@@ -31,7 +31,7 @@ export interface Vaccination {
 
 export interface AdoptionApplication {
   _id: string;
-  animald: string;
+  animalId: string;
   animalName: string;
   applicantName: string;
   applicantEmail: string;
@@ -42,11 +42,12 @@ export interface AdoptionApplication {
   experience: string;
   homeType: string;
   hasOtherPets: boolean;
+  adopterId:string
 }
 
 export interface Appointment {
   _id: string;
-  animald: string;
+  animalId: string;
   animalName: string;
   type: 'Vaccination' | 'Checkup' | 'Surgery' | 'Consultation';
   date: string;
@@ -178,7 +179,7 @@ export const mockVaccinations: Vaccination[] = [
 export const mockApplications: AdoptionApplication[] = [
   {
     _id: 'APP001',
-    animald: 'A001',
+    animalId: 'A001',
     animalName: 'Max',
     applicantName: 'Jennifer Williams',
     applicantEmail: 'jwilliams@email.com',
@@ -188,11 +189,12 @@ export const mockApplications: AdoptionApplication[] = [
     submittedDate: '2025-10-28',
     experience: '10+ years with dogs',
     homeType: 'House with fenced yard',
-    hasOtherPets: true
+    hasOtherPets: true,
+    adopterId:"111"
   },
   {
     _id: 'APP002',
-    animald: 'A003',
+    animalId: 'A003',
     animalName: 'Bella',
     applicantName: 'Michael Chen',
     applicantEmail: 'mchen@email.com',
@@ -202,11 +204,12 @@ export const mockApplications: AdoptionApplication[] = [
     submittedDate: '2025-10-25',
     experience: '5 years with Beagles',
     homeType: 'House with yard',
-    hasOtherPets: false
+    hasOtherPets: false,
+    adopterId:"111"
   },
   {
     _id: 'APP003',
-    animald: 'A002',
+    animalId: 'A002',
     animalName: 'Luna',
     applicantName: 'Sarah Johnson',
     applicantEmail: 'sjohnson@email.com',
@@ -216,11 +219,12 @@ export const mockApplications: AdoptionApplication[] = [
     submittedDate: '2025-10-20',
     experience: 'First-time cat owner',
     homeType: 'Apartment',
-    hasOtherPets: false
+    hasOtherPets: false,
+    adopterId:"111"
   },
   {
     _id: 'APP004',
-    animald: 'A005',
+    animalId: 'A005',
     animalName: 'Rocky',
     applicantName: 'Dav_id Martinez',
     applicantEmail: 'dmartinez@email.com',
@@ -230,14 +234,15 @@ export const mockApplications: AdoptionApplication[] = [
     submittedDate: '2025-10-30',
     experience: 'Former K9 handler',
     homeType: 'House with large yard',
-    hasOtherPets: false
+    hasOtherPets: false,
+    adopterId:"111"
   }
 ];
 
 export const mockAppointments: Appointment[] = [
   {
     _id: 'APT001',
-    animald: 'A001',
+    animalId: 'A001',
     animalName: 'Max',
     type: 'Vaccination',
     date: '2025-11-15',
@@ -248,7 +253,7 @@ export const mockAppointments: Appointment[] = [
   },
   {
     _id: 'APT002',
-    animald: 'A004',
+    animalId: 'A004',
     animalName: 'Oliver',
     type: 'Checkup',
     date: '2025-11-05',
@@ -259,7 +264,7 @@ export const mockAppointments: Appointment[] = [
   },
   {
     _id: 'APT003',
-    animald: 'A005',
+    animalId: 'A005',
     animalName: 'Rocky',
     type: 'Vaccination',
     date: '2025-11-10',
@@ -270,7 +275,7 @@ export const mockAppointments: Appointment[] = [
   },
   {
     _id: 'APT004',
-    animald: 'A006',
+    animalId: 'A006',
     animalName: 'Snowball',
     type: 'Checkup',
     date: '2025-11-08',

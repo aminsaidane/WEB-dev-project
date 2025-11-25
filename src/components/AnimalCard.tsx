@@ -7,12 +7,15 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface AnimalCardProps {
   animal: Animal;
+  favorite?:boolean
   onViewDetails?: (animal: Animal) => void;
   onAdopt?: (animal: Animal) => void;
+  addFavorite?:(animalId:string)=>void;
+  removeFavorite?:(animalId:string)=>void;
   showActions?: boolean;
 }
 
-export default function AnimalCard({ animal, onViewDetails, onAdopt, showActions = true }: AnimalCardProps) {
+export default function AnimalCard({ animal, favorite,onViewDetails, onAdopt,addFavorite,removeFavorite, showActions = true }: AnimalCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Available':
@@ -49,11 +52,13 @@ export default function AnimalCard({ animal, onViewDetails, onAdopt, showActions
             <h3 className="text-[#2C3E50]">{animal.name}</h3>
             <p className="text-[#7F8C8D]">{animal.breed}</p>
           </div>
-          <Button variant="ghost" size="icon" className="text-[#E67E22]">
-            <Heart className="h-5 w-5" />
+          <Button onClick={favorite ? ()=>{removeFavorite?.(animal._id)}: ()=>{addFavorite?.(animal._id)} } variant="ghost" size="icon" className="text-[#E67E22]">
+            <Heart className={`h-4 w-4 mr-2 ${favorite ? 'fill-current' : ''}`} />
           </Button>
         </div>
-        
+        {/* onClick={favorites.includes(selectedAnimal._id) ? ()=>{removeFavorite(selectedAnimal._id)}: ()=>{addFavorite(selectedAnimal._id)} }
+                >
+                  <Heart className={`h-4 w-4 mr-2 ${favorites.includes(selectedAnimal._id) ? 'fill-current' : ''}`} /> */}
         <div className="space-y-1 mb-3">
           <div className="flex items-center gap-2 text-[#7F8C8D]">
             <span className="text-sm">{animal.species} • {animal.gender} • {animal.age}</span>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './components/ui/button';
 import { PawPrint, Bell, LogOut, User } from 'lucide-react';
 import ShelterManagerDashboard from './components/ShelterManagerDashboard';
@@ -8,7 +8,7 @@ import AdminPanel from './components/AdminPanel';
 import LoginPage from './components/LoginPage';
 import { Badge } from './components/ui/badge';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,25 @@ interface UserData {
 export default function App() {
   const [user, setUser] = useState<UserData | null>(null);
 
+    useEffect(() => {
+    // Check if user is already logged in via session
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/auth/me", { withCredentials: true });
+        if (res.data.user) {
+          setUser({
+            name: res.data.user.fullName,
+            email: res.data.user.email,
+            role: res.data.user.role
+          });
+        }
+      } catch (err) {
+        setUser(null);
+      } 
+    };
+
+    fetchUser();
+  }, []);
   const handleLogin = (role: 'shelter' | 'vet' | 'adopter' | 'admin', userData: { name: string; email: string }) => {
     setUser({
       ...userData,
@@ -37,7 +56,12 @@ export default function App() {
 
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:5000/auth/logout", {}, { withCredentials: true });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
     setUser(null);
   };
 
@@ -59,15 +83,15 @@ export default function App() {
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'shelter':
-        return 'bg-[#1ABC9C] text-white';
+        return 'bg-[#1ABC9C] text-black';
       case 'vet':
-        return 'bg-[#E67E22] text-white';
+        return 'bg-[#E67E22] text-black';
       case 'adopter':
-        return 'bg-[#3498DB] text-white';
+        return 'bg-[#3498DB] text-black';
       case 'admin':
-        return 'bg-[#9B59B6] text-white';
+        return 'bg-[#9B59B6] text-black';
       default:
-        return 'bg-[#7F8C8D] text-white';
+        return 'bg-[#7F8C8D] text-black';
     }
   };
 
@@ -101,7 +125,7 @@ export default function App() {
               
               <Route path="/shelter" element={<ShelterManagerDashboard />} />
               <Route path="/vet" element={<VeterinarianDashboard />} />
-              <Route path="/adopter" element={<AdopterPortal />} />
+              <Route path="/adopter" element={<AdopterPortal user={user} setUser={setUser} />} />
               <Route path="/admin" element={<AdminPanel />} />
 
              

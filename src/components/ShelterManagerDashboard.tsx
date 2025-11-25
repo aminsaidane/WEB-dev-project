@@ -10,12 +10,33 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { useState,useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Textarea } from './ui/textarea';
+import { toast } from 'sonner';
 import  axios  from 'axios';
+import vaccination from '../../backend/models/Vaccination';
 export default function ShelterManagerDashboard() {
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
+  const [showAddAnimalDialog, setShowAddAnimalDialog] = useState(false);
   const [mockAnimals, setMockAnimals] = useState<Animal[]>([]);
   const [mockApplications, setMockApplications] = useState<AdoptionApplication[]>([]);
-
+  const [formData, setFormData] = useState({
+    name: '',
+    species: 'Dog' as 'Dog' | 'Cat' | 'Rabbit' | 'Other',
+    breed: '',
+    age: '',
+    gender: 'Male' as 'Male' | 'Female',
+    weight: '',
+    imageUrl:'',
+    status:'Available' as 'Available' |'Pending' |'Medical Hold',
+    location: '',
+    description: '',
+    temperament: '',
+    medicalHistory:'',
+    vaccination:''
+  });
  useEffect(() => {
   const fetchData = async () => {
     try {
@@ -74,6 +95,47 @@ export default function ShelterManagerDashboard() {
       bgColor: 'bg-[#F39C12]/10'
     }
   ];
+  const handleAddAnimal = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    // Convert comma-separated strings into arrays
+    const payload = {
+      ...formData,
+      temperament: formData.temperament.split(",").map(t => t.trim()),
+      vaccination: formData.vaccination.split(",").map(v => v.trim()),
+      medicalHistory: formData.medicalHistory.split(",").map(m => m.trim()),
+    };
+
+    const res = await axios.post("http://localhost:5000/animals", payload, {
+      withCredentials: true, // send cookies if you use session auth
+    });
+
+    console.log("Animal added:", res.data.animal);
+
+    setMockAnimals((prev)=>{return [...prev,res.data.animal]})
+
+    // Reset form and close dialog
+    setFormData({
+      name: "",
+      species: "Dog",
+      breed: "",
+      age: "",
+      gender: "Male",
+      weight: "",
+      status: "Available",
+      imageUrl: "",
+      location: "",
+      description: "",
+      temperament: "",
+      vaccination: "",
+      medicalHistory: "",
+    });
+    setShowAddAnimalDialog(false);
+  } catch (err) {
+    console.error("Failed to add animal:", err);
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -128,7 +190,7 @@ export default function ShelterManagerDashboard() {
         <TabsContent value="animals" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-[#2C3E50]">All Animals ({mockAnimals.length})</h3>
-            <Button className="bg-[#1ABC9C] hover:bg-[#16a085]">
+            <Button  onClick={() => setShowAddAnimalDialog(true)} className="bg-[#1ABC9C] hover:bg-[#16a085]">
               <PawPrint className="h-4 w-4 mr-2" />
               Add New Animal
             </Button>
@@ -313,6 +375,171 @@ export default function ShelterManagerDashboard() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+       {/* Add Animal Dialog */}
+      <Dialog open={showAddAnimalDialog} onOpenChange={setShowAddAnimalDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-[#2C3E50]">Add New Animal</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={handleAddAnimal}>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  placeholder="e.g., Max"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="species">Species *</Label>
+                <Select
+                  value={formData.species}
+                  onValueChange={(value:any) => setFormData({ ...formData, species: value as 'Dog' | 'Cat' | 'Rabbit' | 'Other' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.species}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Dog">Dog</SelectItem>
+                    <SelectItem value="Cat">Cat</SelectItem>
+                    <SelectItem value="Rabbit">Rabbit</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="breed">Breed *</Label>
+                <Input
+                  id="breed"
+                  placeholder="e.g., Golden Retriever"
+                  value={formData.breed}
+                  onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="age">Age *</Label>
+                <Input
+                  id="age"
+                  placeholder="e.g., 3 years"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gender">Gender</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value:any) => setFormData({ ...formData, gender: value as 'Male' | 'Female' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.gender}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="weight">Weight *</Label>
+                <Input
+                  id="weight"
+                  placeholder="e.g., 30 kg"
+                  value={formData.weight}
+                  onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gender">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value:any) => setFormData({ ...formData, status: value as 'Available' | 'Pending' |'Medical Hold' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.status}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Available">Available</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Medical Hold">Medical Hold</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="ImgUrl">Image Url *</Label>
+                <Input
+                  id="ImgUrl"
+                  placeholder="e.g., URL"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  placeholder="e.g., Downtown Shelter - Wing A"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe the animal's personality and behavior"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="temperament">Temperament (comma separated)</Label>
+                <Input
+                  id="temperament"
+                  placeholder="e.g., Friendly, Energetic, Good with kids"
+                  value={formData.temperament}
+                  onChange={(e) => setFormData({ ...formData, temperament: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="vacination">Vacination (comma separated)</Label>
+                <Input
+                  id="vacination"
+                  placeholder="e.g., DHPP, Rabies"
+                  value={formData.vaccination}
+                  onChange={(e) => setFormData({ ...formData, vaccination: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="medicalHistory">Medical History (comma separated)</Label>
+                <Input
+                  id="medicalHistory"
+                  placeholder="e.g., FIV/FeLV negative, Microchipped"
+                  value={formData.medicalHistory}
+                  onChange={(e) => setFormData({ ...formData, medicalHistory: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowAddAnimalDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#1ABC9C] hover:bg-[#16a085]"
+                onClick={""}
+              >
+                Add Animal
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

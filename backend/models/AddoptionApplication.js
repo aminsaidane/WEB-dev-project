@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { type } = require('os');
 const {Schema} = mongoose
 
 const addoptionApplicationSchema = new Schema({ 
@@ -14,6 +15,10 @@ const addoptionApplicationSchema = new Schema({
     animalId: {
         type : Schema.Types.ObjectId,
         ref:"Animal"
+    },
+    adopterId:{
+         type : Schema.Types.ObjectId,
+        ref:"User"
     } 
 })
 
