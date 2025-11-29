@@ -127,21 +127,21 @@ const mockAnimals = [
   }
 ];
 const mockVaccinations = [
-  {  animalId: "691d958df24742f1142904cf", vaccineName: 'DHPP', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09', status: 'Completed' },
-  { animalId: "691d958df24742f1142904cf", vaccineName: 'Rabies', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09', status: 'Completed' },
-  {  animalId: "691d958df24742f1142904cf", vaccineName: 'Bordetella', dateAdministered: '2025-09-20', nextDueDate: '2025-11-15', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'BORD-2025-09', status: 'Due Soon' },
-  {  animalId: "691d958df24742f1142904d0", vaccineName: 'FVRCP', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10', status: 'Completed' },
-  {  animalId: "691d958df24742f1142904d0", vaccineName: 'Rabies', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'RAB-2025-10', status: 'Completed' },
-  {  animalId: "691d958df24742f1142904d1", vaccineName: 'DHPP', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-08', status: 'Completed' },
-  {  animalId: "691d958df24742f1142904d1", vaccineName: 'Rabies', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-08', status: 'Completed' },
-  {  animalId: "691d958df24742f1142904d2", vaccineName: 'FVRCP', dateAdministered: '2025-10-12', nextDueDate: '2026-10-12', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10B', status: 'Completed' },
-  {  animalId: "691d958df24742f1142904d3", vaccineName: 'DHPP', dateAdministered: '2025-09-10', nextDueDate: '2025-11-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09B', status: 'Due Soon' },
-  {  animalId: "691d958df24742f1142904d3", vaccineName: 'Rabies', dateAdministered: '2025-09-10', nextDueDate: '2026-09-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09B', status: 'Completed' },
-  {  animalId: "691d958df24742f1142904d4", vaccineName: 'RHD', dateAdministered: '2025-10-18', nextDueDate: '2026-10-18', veterinarian: 'Dr. Emily Rodriguez', batchNumber: 'RHD-2025-10', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324200", vaccineName: 'DHPP', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09', status: 'Completed' },
+  { animalId: "692acff7cd1056b5b7324200", vaccineName: 'Rabies', dateAdministered: '2025-09-20', nextDueDate: '2026-09-20', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324200", vaccineName: 'Bordetella', dateAdministered: '2025-09-20', nextDueDate: '2025-11-15', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'BORD-2025-09', status: 'Due Soon' },
+  {  animalId: "692acff7cd1056b5b7324201", vaccineName: 'FVRCP', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324201", vaccineName: 'Rabies', dateAdministered: '2025-10-05', nextDueDate: '2026-10-05', veterinarian: 'Dr. Michael Chen', batchNumber: 'RAB-2025-10', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324202", vaccineName: 'DHPP', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-08', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324202", vaccineName: 'Rabies', dateAdministered: '2025-08-25', nextDueDate: '2026-08-25', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-08', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324203", vaccineName: 'FVRCP', dateAdministered: '2025-10-12', nextDueDate: '2026-10-12', veterinarian: 'Dr. Michael Chen', batchNumber: 'FVRCP-2025-10B', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324204", vaccineName: 'DHPP', dateAdministered: '2025-09-10', nextDueDate: '2025-11-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'DHPP-2025-09B', status: 'Due Soon' },
+  {  animalId: "692acff7cd1056b5b7324204", vaccineName: 'Rabies', dateAdministered: '2025-09-10', nextDueDate: '2026-09-10', veterinarian: 'Dr. Sarah Mitchell', batchNumber: 'RAB-2025-09B', status: 'Completed' },
+  {  animalId: "692acff7cd1056b5b7324205", vaccineName: 'RHD', dateAdministered: '2025-10-18', nextDueDate: '2026-10-18', veterinarian: 'Dr. Emily Rodriguez', batchNumber: 'RHD-2025-10', status: 'Completed' },
 ];
 const mockApplications= [
   {
-    animalId: "691d958df24742f1142904cf",
+    animalId: "692acff7cd1056b5b7324200",
     applicantName: 'Jennifer Williams',
     applicantEmail: 'jwilliams@email.com',
     applicantPhone: '555-0123',
@@ -153,7 +153,7 @@ const mockApplications= [
     hasOtherPets: true
   },
   {
-    animalId: "691d958df24742f1142904d1",
+    animalId: "692acff7cd1056b5b7324202",
     applicantName: 'Michael Chen',
     applicantEmail: 'mchen@email.com',
     applicantPhone: '555-0124',
@@ -165,7 +165,7 @@ const mockApplications= [
     hasOtherPets: false
   },
   {
-    animalId: "691d958df24742f1142904d0",
+    animalId: "692acff7cd1056b5b7324201",
     applicantName: 'Sarah Johnson',
     applicantEmail: 'sjohnson@email.com',
     applicantPhone: '555-0125',
@@ -177,7 +177,7 @@ const mockApplications= [
     hasOtherPets: false
   },
   {
-    animalId: "691d958df24742f1142904d3",
+    animalId: "692acff7cd1056b5b7324204",
     applicantName: 'David Martinez',
     applicantEmail: 'dmartinez@email.com',
     applicantPhone: '555-0126',
@@ -191,7 +191,7 @@ const mockApplications= [
 ]
 const mockAppointments = [
   {
-    animalId: "691d958df24742f1142904cf",
+    animalId: "692acff7cd1056b5b7324200",
     type: 'Vaccination',
     date: '2025-11-15',
     time: '10:00 AM',
@@ -200,7 +200,7 @@ const mockAppointments = [
     notes: 'Bordetella booster due'
   },
   {
-    animalId: "691d958df24742f1142904d2",
+    animalId: "692acff7cd1056b5b7324203",
     type: 'Checkup',
     date: '2025-11-05',
     time: '2:00 PM',
@@ -209,7 +209,7 @@ const mockAppointments = [
     notes: 'Post-surgery follow-up'
   },
   {
-    animalId: "691d958df24742f1142904d3",
+    animalId: "692acff7cd1056b5b7324204",
     type: 'Vaccination',
     date: '2025-11-10',
     time: '11:30 AM',
@@ -218,7 +218,7 @@ const mockAppointments = [
     notes: 'DHPP booster'
   },
   {
-    animalId:  "691d958df24742f1142904d4",
+    animalId:  "692acff7cd1056b5b7324205",
     type: 'Checkup',
     date: '2025-11-08',
     time: '3:30 PM',
@@ -233,23 +233,34 @@ const mockAppointments = [
 async function seedAnimals() {
   try {
     console.log("Connecting to MongoDB...");
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI,{dbName:"shelterDB", useNewUrlParser: true,
+  useUnifiedTopology: true,});
 
-   console.log("Inserting appointments...");
+ await AddoptionApplication.deleteMany({})
+ console.log("Inserting adoption applications...");
 
-const appointmentsData = mockAppointments.map(appt => ({
-  animalId: appt.animalId, // already a valid ObjectId string
-  type: appt.type,
-  date: appt.date,
-  time: appt.time,
-  veterinarian: appt.veterinarian,
-  status: appt.status,
-  notes: appt.notes
+const applicationsData = mockApplications.map(app => ({
+  animalId: app.animalId,  // already a valid ObjectId string
+  applicantName: app.applicantName,
+  applicantEmail: app.applicantEmail,
+  applicantPhone: app.applicantPhone,
+  address: app.address,
+  status: app.status,
+  submittedDate: app.submittedDate,
+  experience: app.experience,
+  homeType: app.homeType,
+  hasOtherPets: app.hasOtherPets
 }));
 
-await Appointment.insertMany(appointmentsData);
+await AddoptionApplication.insertMany(applicationsData);
 
-console.log("Appointments inserted!");
+console.log("Adoption applications inserted!");
+
+
+
+
+
+
 
 
 

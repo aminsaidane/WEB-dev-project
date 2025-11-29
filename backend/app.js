@@ -13,11 +13,12 @@ require('dotenv').config();
 
 const session = require('express-session');
 const passport = require('passport');
-const { json } = require('stream/consumers');
 
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/shelterDB').then(()=>{
+
+mongoose.connect(process.env.MONGO_URI,{dbName:"shelterDB"
+}).then(()=>{
     console.log("connected to ShelterDB")
 }).catch((err)=>{
     console.log(err);
@@ -33,7 +34,8 @@ app.use(session({
   secret: "your-secret",
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: "mongodb://localhost:27017/shelterDB" }),
+  store: MongoStore.create({ mongoUrl: "mongodb://localhost:27017/shelterDB",useNewUrlParser: true,
+  useUnifiedTopology: true, }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 // 1 day
   }
@@ -58,32 +60,7 @@ app.use('/auth', userRoutes)
 /* ===========================
    CREATE MOCK USER (TEST ONLY)
    =========================== */
-app.get("/mock", async (req, res) => {
-  try {
-    const user = new User({
-      fullName: "Amine Saidane",
-      email: "aminsaidane77@gmail.com",
-      role: "adopter",
-    });
 
-    // For test users: directly set password using setPassword()
-    await user.setPassword("aminsaidane2020"); // passport-local-mongoose helper
-
-    await user.save();
-
-    res.json({
-      message: "Mock user created successfully",
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 
 app.listen(process.env.PORT,()=>{

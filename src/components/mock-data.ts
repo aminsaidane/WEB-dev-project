@@ -25,6 +25,7 @@ export interface Vaccination {
   dateAdministered: string;
   nextDueDate: string;
   veterinarian: string;
+  vetId? :string,
   batchNumber: string;
   status: 'Completed' | 'Due Soon' | 'Overdue';
 }
@@ -53,6 +54,7 @@ export interface Appointment {
   date: string;
   time: string;
   veterinarian: string;
+  vetId?: string;  
   status: 'Scheduled' | 'Completed' | 'Cancelled';
   notes: string;
 }

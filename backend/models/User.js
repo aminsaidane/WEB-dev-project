@@ -13,6 +13,10 @@ const userSchema = new Schema({
     enum: ["adopter", "vet", "shelter", "admin"],
     default: "adopter"
   },
+  lastLogin:{
+    type:String,
+    default:null
+  },
 favoriteAnimals: [
     { type: Schema.Types.ObjectId, ref: "Animal" }
   ],

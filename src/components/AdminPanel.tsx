@@ -8,18 +8,46 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+ interface User {
+  _id: string;          // MongoDB ObjectId as string
+  fullName: string;
+  email: string;
+  role: 'adopter' | 'vet' | 'shelter' | 'admin';
+  lastLogin: string;    // format: "YYYY-MM-DD"
+}
 
 export default function AdminPanel() {
   const COLORS = ['#1ABC9C', '#3498DB', '#9B59B6', '#E67E22'];
+  const [users, setUsers] = useState<User[]>([]);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [editedUser, setEditedUser] = useState<User | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    fullName: '',
+    email: '',
+    role: 'adopter' as 'adopter' | 'vet' | 'shelter' | 'admin',
+    password: ''
+  });
+  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/auth/users');
+        setUsers(res.data);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      }
+    };
 
-  const users = [
-    { id: 1, name: 'Dr. Sarah Mitchell', email: 'smitchell@shelter.com', role: 'Veterinarian', status: 'Active', lastLogin: '2025-11-01' },
-    { id: 2, name: 'Jennifer Williams', email: 'jwilliams@shelter.com', role: 'Shelter Manager', status: 'Active', lastLogin: '2025-11-01' },
-    { id: 3, name: 'Dr. Michael Chen', email: 'mchen@shelter.com', role: 'Veterinarian', status: 'Active', lastLogin: '2025-10-31' },
-    { id: 4, name: 'David Martinez', email: 'dmartinez@shelter.com', role: 'Volunteer', status: 'Active', lastLogin: '2025-10-30' },
-    { id: 5, name: 'Dr. Emily Rodriguez', email: 'erodriguez@shelter.com', role: 'Veterinarian', status: 'Active', lastLogin: '2025-10-31' },
-  ];
-
+    fetchUsers();
+  }, []);
+  
   const systemLogs = [
     { id: 1, timestamp: '2025-11-01 14:32:15', user: 'Dr. Sarah Mitchell', action: 'Administered vaccination', details: 'DHPP for Max (A001)' },
     { id: 2, timestamp: '2025-11-01 14:15:22', user: 'Jennifer Williams', action: 'Updated animal profile', details: 'Modified status for Bella (A003)' },
@@ -68,6 +96,78 @@ export default function AdminPanel() {
     }
   ];
 
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setEditedUser({ ...user });
+    setEditDialogOpen(true);
+  };
+
+const handleSaveUser = async () => {
+  if (!editedUser) return;
+
+  try {
+    const res = await axios.put(
+      `http://localhost:5000/auth/users/${editedUser._id}`,
+      editedUser,
+      { withCredentials: true }
+    );
+
+    // Update local state
+    const updated = res.data;
+    const index = users.findIndex(u => u._id === updated._id);
+
+    if (index !== -1) {
+      const newUsers = [...users];
+      newUsers[index] = updated;
+      setUsers(newUsers);
+    }
+
+    setEditDialogOpen(false);
+
+  } catch (err) {
+    console.error("Error updating user", err);
+  }
+};
+
+const handleAddUser = async () => {
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/auth/users",
+      newUser,
+      { withCredentials: true }
+    );
+
+    const createdUser = res.data.user;
+
+    // Add new user to UI
+    setUsers((prev) => [...prev, createdUser]);
+
+ 
+
+    // Reset form
+    setNewUser({
+      fullName: "",
+      email: "",
+      role: "adopter",
+      password: ""
+    });
+
+    setAddDialogOpen(false);
+
+  } catch (err: any) {
+    console.error(err);
+   
+  }
+};
+
+const handleDeleteUser = async (id: string) => {
+  try {
+    await axios.delete(`http://localhost:5000/auth/users/${id}`);
+    setUsers(prev => prev.filter(user => user._id !== id));
+  } catch (err) {
+    console.error("Failed to delete user:", err);
+  }
+};
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
@@ -101,7 +201,7 @@ export default function AdminPanel() {
         <TabsContent value="users" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-[#2C3E50]">User Accounts</h3>
-            <Button className="bg-[#1ABC9C] hover:bg-[#16a085]">
+            <Button onClick={()=>{setAddDialogOpen(true)}} className="bg-[#1ABC9C] hover:bg-[#16a085]">
               <Users className="h-4 w-4 mr-2" />
               Add New User
             </Button>
@@ -115,36 +215,30 @@ export default function AdminPanel() {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Last Login</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>{user.name}</TableCell>
+                    <TableRow key={user._id}>
+                      <TableCell>{user.fullName}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className={
-                          user.role === 'Veterinarian' ? 'bg-[#1ABC9C]/10 text-[#1ABC9C]' :
-                          user.role === 'Shelter Manager' ? 'bg-[#3498DB]/10 text-[#3498DB]' :
-                          user.role === 'Admin' ? 'bg-[#9B59B6]/10 text-[#9B59B6]' :
+                          user.role === 'vet' ? 'bg-[#1ABC9C]/10 text-[#1ABC9C]' :
+                          user.role === 'shelter' ? 'bg-[#3498DB]/10 text-[#3498DB]' :
+                          user.role === 'admin' ? 'bg-[#9B59B6]/10 text-[#9B59B6]' :
                           'bg-[#E67E22]/10 text-[#E67E22]'
                         }>
                           {user.role}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <Badge className="bg-[#27AE60] text-white">
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{new Date(user.lastLogin).toLocaleDateString()}</TableCell>
+                      <TableCell>{user.lastLogin ? user.lastLogin:"Never"}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">Edit</Button>
-                          <Button size="sm" variant="outline" className="text-[#E74C3C]">Delete</Button>
+                          <Button onClick={() => handleEditUser(user)} size="sm" variant="outline">Edit</Button>
+                          <Button onClick={()=>{handleDeleteUser(user._id)}} size="sm" variant="outline" className="text-[#E74C3C]">Delete</Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -380,6 +474,129 @@ export default function AdminPanel() {
           </Card>
         </TabsContent>
       </Tabs>
+      {/* Edit User Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Make changes to the user details below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={editedUser?.fullName || ''}
+                onChange={(e) => setEditedUser({ ...editedUser!, fullName: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={editedUser?.email || ''}
+                onChange={(e) => setEditedUser({ ...editedUser!, email: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="role">Role</Label>
+              <Select
+                value={editedUser?.role || ''}
+                onValueChange={(value:any) => setEditedUser({ ...editedUser!, role: value })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="adopter">Adopter</SelectItem>
+                  <SelectItem value="vet">Veterinarian</SelectItem>
+                  <SelectItem value="shelter">Shelter Manager</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleSaveUser}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add User Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <DialogDescription>
+              Enter the details for the new user below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={newUser.fullName}
+                onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="role">Role</Label>
+              <Select
+                value={newUser.role}
+                onValueChange={(value:any) => setNewUser({ ...newUser, role: value })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="adopter">Adopter</SelectItem>
+                  <SelectItem value="vet">Veterinarian</SelectItem>
+                  <SelectItem value="shelter">Shelter Manager</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleAddUser}>
+              Add User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -11,7 +11,12 @@ const appoinmentSchema = new Schema({
     animalId: {
         type : Schema.Types.ObjectId,
         ref:"Animal"
-    } 
+    },
+    vetId:{
+        type :Schema.Types.ObjectId,
+        ref:"User",
+        required:false
+    }
 })
 
 

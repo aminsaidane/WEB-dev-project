@@ -1,20 +1,19 @@
 const express = require('express')
 const router = express.Router();
 const Vaccination = require('../models/Vaccination');
+const {getVaccinations, editVAccinationStatus, addVaccination} = require('../controllers/vaccinationControllers')
 
-router.get('/',async (req,res)=>{
-    try{
-        const vaccinations = await Vaccination.find().populate("animalId","name species")
-        if(vaccinations){
-            res.status(200).json({vaccinations:vaccinations})
-        }else{
-            res.status(404).json({msg:"No vaccinations Found"});
-        }
 
-    }catch(err){
-        return res.status(500).json("Error fetching vaccinations")
-    }
-})
+router.get('/',getVaccinations);
+
+
+
+router.put("/:id/complete",editVAccinationStatus);
+
+
+
+router.post("/", addVaccination);
+
 
 
 module.exports = router

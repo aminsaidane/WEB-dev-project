@@ -16,9 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Textarea } from './ui/textarea';
 import { toast } from 'sonner';
 import  axios  from 'axios';
-import vaccination from '../../backend/models/Vaccination';
+
 export default function ShelterManagerDashboard() {
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<AdoptionApplication | null>(null);
   const [showAddAnimalDialog, setShowAddAnimalDialog] = useState(false);
   const [mockAnimals, setMockAnimals] = useState<Animal[]>([]);
   const [mockApplications, setMockApplications] = useState<AdoptionApplication[]>([]);
@@ -35,7 +36,23 @@ export default function ShelterManagerDashboard() {
     description: '',
     temperament: '',
     medicalHistory:'',
-    vaccination:''
+    vaccinations:''
+  });
+   const [updateData, setUpdateData] = useState({
+    _id:'',
+    name: '',
+    species: 'Dog' as 'Dog' | 'Cat' | 'Rabbit' | 'Other',
+    breed: '',
+    age: '',
+    gender: 'Male' as 'Male' | 'Female',
+    weight: '',
+    imageUrl:'',
+    status:'Available' as 'Available' |'Pending' |'Medical Hold',
+    location: '',
+    description: '',
+    temperament: '',
+    medicalHistory:'',
+    vaccinations:''
   });
  useEffect(() => {
   const fetchData = async () => {
@@ -103,7 +120,7 @@ export default function ShelterManagerDashboard() {
     const payload = {
       ...formData,
       temperament: formData.temperament.split(",").map(t => t.trim()),
-      vaccination: formData.vaccination.split(",").map(v => v.trim()),
+      vaccinations: formData.vaccinations.split(",").map(v => v.trim()),
       medicalHistory: formData.medicalHistory.split(",").map(m => m.trim()),
     };
 
@@ -128,7 +145,7 @@ export default function ShelterManagerDashboard() {
       location: "",
       description: "",
       temperament: "",
-      vaccination: "",
+      vaccinations: "",
       medicalHistory: "",
     });
     setShowAddAnimalDialog(false);
@@ -136,7 +153,96 @@ export default function ShelterManagerDashboard() {
     console.error("Failed to add animal:", err);
   }
 };
+const handleDeleteAnimal = async(animal:Animal,e:React.FormEvent) =>{
+  e.preventDefault();
+  try{
+    const res = await axios.delete(`http://localhost:5000/animals/${animal?._id}`, {
+       withCredentials: true, // send cookies if you use session auth
+     });
+       setMockAnimals((prev)=>{return prev.filter((a)=>{
+        return a._id != animal._id
+    })})
+  }catch(err){
+    console.log("failed to delete animal",err)
+  }
+}
+const handleUpdateAnimal = async (e: React.FormEvent) => {
+  e.preventDefault();
 
+  try {
+    // Convert comma-separated strings into arrays
+    console.log(updateData)
+    const {_id,...data} = updateData
+    const payload = {
+      ...data,
+      temperament: updateData.temperament.split(",").map(t => t.trim()),
+      vaccinations: updateData.vaccinations.split(",").map(v => v.trim()),
+      medicalHistory: updateData.medicalHistory.split(",").map(m => m.trim()),
+    };
+    console.log(payload)
+     const res = await axios.put(`http://localhost:5000/animals/${selectedAnimal?._id}`, payload, {
+       withCredentials: true, // send cookies if you use session auth
+     });
+
+    console.log("Animal updated:", res.data.animal);
+
+    setMockAnimals((prev)=>{return prev.map((animal)=>{
+      if(animal._id== res.data.animal._id){
+        return res.data.animal
+      }else{
+        return animal
+      }
+    })})
+
+    // Reset form and close dialog
+    setUpdateData({
+      _id:"",
+      name: "",
+      species: "Dog",
+      breed: "",
+      age: "",
+      gender: "Male",
+      weight: "",
+      status: "Available",
+      imageUrl: "",
+      location: "",
+      description: "",
+      temperament: "",
+      vaccinations: "",
+      medicalHistory: "",
+    });
+    setSelectedAnimal(null)
+  } catch (err) {
+    console.error("Failed to update animal:", err);
+  }
+};
+const handleUpdateApplicationStatus = async (e: React.FormEvent) => {
+  e.preventDefault()
+  if (!selectedApplication) return;
+
+  try {
+    // Send only the updated status
+    const res = await axios.put(`http://localhost:5000/applications/${selectedApplication!._id}`, {
+      status: selectedApplication!.status,
+    });
+
+ 
+
+   setMockApplications((prev)=>{return prev.map((app)=>{
+      if(app._id== res.data.application._id){
+        return res.data.application
+      }else{
+        return app
+      }
+    })})
+
+    // Close dialog
+   setSelectedApplication(null)
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update status");
+  }
+};
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
@@ -201,7 +307,11 @@ export default function ShelterManagerDashboard() {
                 key={animal._id} 
                 animal={animal}
                 onViewDetails={setSelectedAnimal}
+                onUpdate={setSelectedAnimal}
+                onDelete={handleDeleteAnimal}
+                setUpdateData={setUpdateData}
                 showActions={false}
+                showAdminActions={true}
               />
             ))}
           </div>
@@ -253,7 +363,7 @@ export default function ShelterManagerDashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">Review</Button>
+                          <Button onClick={()=>{setSelectedApplication(app)}} size="sm" variant="outline">Review</Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -314,7 +424,7 @@ export default function ShelterManagerDashboard() {
       </Tabs>
 
       {/* Animal Details Dialog */}
-      <Dialog open={!!selectedAnimal} onOpenChange={() => setSelectedAnimal(null)}>
+      {/* <Dialog open={!!selectedAnimal} onOpenChange={() => setSelectedAnimal(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-[#2C3E50]">{selectedAnimal?.name}</DialogTitle>
@@ -353,10 +463,10 @@ export default function ShelterManagerDashboard() {
                 </ul>
               </div>
               <div>
-                <p className="text-sm text-[#7F8C8D] mb-2">Vaccinations</p>
+                <p className="text-sm text-[#7F8C8D] mb-2">Vaccinationsvaccinationss</p>
                 <div className="space-y-2">
-                  {selectedAnimal.vaccinations.length > 0 ? (
-                    selectedAnimal.vaccinations.map((vac) => (
+                  {selectedAnimal.vaccinationss.length > 0 ? (
+                    selectedAnimal.vaccinationss.map((vac) => (
                       <div key={vac._id} className="flex justify-between items-center p-2 bg-[#ECF0F1] rounded">
                         <span className="text-[#2C3E50]">{vac.vaccineName}</span>
                         <Badge className={
@@ -369,14 +479,14 @@ export default function ShelterManagerDashboard() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-[#7F8C8D]">No vaccination records</p>
+                    <p className="text-[#7F8C8D]">No vaccinations records</p>
                   )}
                 </div>
               </div>
             </div>
           )}
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
        {/* Add Animal Dialog */}
       <Dialog open={showAddAnimalDialog} onOpenChange={setShowAddAnimalDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -511,8 +621,8 @@ export default function ShelterManagerDashboard() {
                 <Input
                   id="vacination"
                   placeholder="e.g., DHPP, Rabies"
-                  value={formData.vaccination}
-                  onChange={(e) => setFormData({ ...formData, vaccination: e.target.value })}
+                  value={formData.vaccinations}
+                  onChange={(e) => setFormData({ ...formData, vaccinations: e.target.value })}
                 />
               </div>
               <div className="col-span-2">
@@ -534,7 +644,7 @@ export default function ShelterManagerDashboard() {
               </Button>
               <Button
                 className="bg-[#1ABC9C] hover:bg-[#16a085]"
-                onClick={""}
+               
               >
                 Add Animal
               </Button>
@@ -542,6 +652,296 @@ export default function ShelterManagerDashboard() {
           </form>
         </DialogContent>
       </Dialog>
+      {/*update animal dialogue  */}
+      <Dialog open={!!selectedAnimal} onOpenChange={()=>{setSelectedAnimal(null)}}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-[#2C3E50]">Add New Animal</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={handleUpdateAnimal}>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  placeholder={updateData?.name}
+                  value={updateData?.name}
+                  onChange={(e) => setUpdateData({ ...updateData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="species">Species *</Label>
+                <Select
+                  value={updateData.species}
+                  onValueChange={(value:any) => setUpdateData({ ...updateData, species: value as 'Dog' | 'Cat' | 'Rabbit' | 'Other' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{updateData.species}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Dog">Dog</SelectItem>
+                    <SelectItem value="Cat">Cat</SelectItem>
+                    <SelectItem value="Rabbit">Rabbit</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="breed">Breed *</Label>
+                <Input
+                  id="breed"
+                  placeholder="e.g., Golden Retriever"
+                  value={updateData.breed}
+                  onChange={(e) => setUpdateData({ ...updateData, breed: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="age">Age *</Label>
+                <Input
+                  id="age"
+                  placeholder="e.g., 3 years"
+                  value={updateData.age}
+                  onChange={(e) => setUpdateData({ ...updateData, age: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gender">Gender</Label>
+                <Select
+                  value={updateData.gender}
+                  onValueChange={(value:any) => setUpdateData({ ...updateData, gender: value as 'Male' | 'Female' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{updateData.gender}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="weight">Weight *</Label>
+                <Input
+                  id="weight"
+                  placeholder="e.g., 30 kg"
+                  value={updateData.weight}
+                  onChange={(e) => setFormData({ ...updateData, weight: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gender">Status</Label>
+                <Select
+                  value={updateData.status}
+                  onValueChange={(value:any) => setUpdateData({ ...updateData, status: value as 'Available' | 'Pending' |'Medical Hold' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{updateData.status}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Available">Available</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Medical Hold">Medical Hold</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="ImgUrl">Image Url *</Label>
+                <Input
+                  id="ImgUrl"
+                  placeholder="e.g., URL"
+                  value={updateData.imageUrl}
+                  onChange={(e) => setUpdateData({ ...updateData, imageUrl: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  placeholder="e.g., Downtown Shelter - Wing A"
+                  value={updateData.location}
+                  onChange={(e) => setUpdateData({ ...updateData, location: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe the animal's personality and behavior"
+                  value={updateData.description}
+                  onChange={(e) => setUpdateData({ ...updateData, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="temperament">Temperament (comma separated)</Label>
+                <Input
+                  id="temperament"
+                  placeholder="e.g., Friendly, Energetic, Good with kids"
+                  value={updateData.temperament}
+                  onChange={(e) => setUpdateData({ ...updateData, temperament: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="vacination">Vacination (comma separated)</Label>
+                <Input
+                  id="vacination"
+                  placeholder="e.g., DHPP, Rabies"
+                  value={updateData.vaccinations}
+                  onChange={(e) => setUpdateData({ ...updateData, vaccinations: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="medicalHistory">Medical History (comma separated)</Label>
+                <Input
+                  id="medicalHistory"
+                  placeholder="e.g., FIV/FeLV negative, Microchipped"
+                  value={updateData.medicalHistory}
+                  onChange={(e) => setUpdateData({ ...updateData, medicalHistory: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedAnimal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#1ABC9C] hover:bg-[#16a085]"
+                
+              >
+                Update Animal 
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+       {/* Review Dialog */}
+       <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
+        <DialogContent className="max-w-2xl">
+    <DialogHeader>
+      <DialogTitle className="text-[#2C3E50]">
+        Adoption Application — {selectedApplication?.applicantName}
+      </DialogTitle>
+    </DialogHeader>
+
+    {selectedApplication && (
+      <div className="space-y-4">
+
+        {/* Applicant Info */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-[#7F8C8D]">Name</p>
+            <p className="text-[#2C3E50]">{selectedApplication.applicantName}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-[#7F8C8D]">Email</p>
+            <p className="text-[#2C3E50]">{selectedApplication.applicantEmail}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-[#7F8C8D]">Phone</p>
+            <p className="text-[#2C3E50]">{selectedApplication.applicantPhone}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-[#7F8C8D]">Status</p>
+            <p className="text-[#2C3E50]">{selectedApplication.status}</p>
+          </div>
+        </div>
+
+        {/* Address */}
+        <div>
+          <p className="text-sm text-[#7F8C8D]">Address</p>
+          <p className="text-[#2C3E50]">{selectedApplication.address}</p>
+        </div>
+
+        {/* Home & Pets */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-[#7F8C8D]">Home Type</p>
+            <p className="text-[#2C3E50]">{selectedApplication.homeType}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-[#7F8C8D]">Has Other Pets?</p>
+            <p className="text-[#2C3E50]">
+              {selectedApplication.hasOtherPets ? "Yes" : "No"}
+            </p>
+          </div>
+        </div>
+
+        {/* Experience */}
+        <div>
+          <p className="text-sm text-[#7F8C8D] mb-1">Experience</p>
+          <p className="text-[#2C3E50] whitespace-pre-line">
+            {selectedApplication.experience}
+          </p>
+        </div>
+
+        {/* Submitted Date */}
+        <div>
+          <p className="text-sm text-[#7F8C8D]">Submitted On</p>
+          <p className="text-[#2C3E50]">
+            {new Date(selectedApplication.submittedDate).toLocaleDateString()}
+          </p>
+        </div>
+
+        {/* Linked Animal */}
+        {selectedApplication.animalId && (
+          <div className="p-3 bg-[#ECF0F1] rounded-lg">
+            <p className="text-sm text-[#7F8C8D]">Animal</p>
+            <p className="text-[#2C3E50] font-medium">
+              {selectedApplication.animalName}
+            </p>
+          </div>
+        )}
+      </div>
+    )}
+    
+      <div>
+      <Label htmlFor="status">Status</Label>
+                <Select
+                  value={selectedApplication?.status}
+                  onValueChange={(value:any) => setSelectedApplication((prev) => ({
+        ...prev!,
+        status: value as
+          | "Pending Review"
+          | "Approved"
+          | "Rejected"
+          | "Interview Scheduled",
+      }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{selectedApplication?.status}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pending Review">Pending Review</SelectItem>
+                    <SelectItem value="Approved">Approved</SelectItem>
+                    <SelectItem value="Rejected">Rejected</SelectItem>
+                    <SelectItem value="Interview Scheduled">Interview Scheduled</SelectItem>
+                  </SelectContent>
+                </Select>
+      </div>
+      <div className="flex justify-end gap-2 pt-4">
+          <Button
+                variant="outline"
+                onClick={() => setSelectedApplication(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#1ABC9C] hover:bg-[#16a085]"
+                 onClick={handleUpdateApplicationStatus}
+              >
+                Update Animal 
+              </Button>
+      </div>
+    
+  </DialogContent>
+      </Dialog> 
     </div>
   );
 }

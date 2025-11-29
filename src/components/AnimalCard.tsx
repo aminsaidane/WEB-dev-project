@@ -2,20 +2,25 @@ import { Animal } from './mock-data';
 import { Card, CardContent, CardFooter } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Heart, Calendar, MapPin, Info } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Heart, Calendar, MapPin, Info, X } from 'lucide-react';
+import { ImageWithFallback } from './figma/ImageWithFallback';import vaccination from '../../backend/models/Vaccination';
+import React from 'react';
 
 interface AnimalCardProps {
   animal: Animal;
   favorite?:boolean
   onViewDetails?: (animal: Animal) => void;
+  onUpdate?: (animal: Animal) => void;
+  onDelete?: (animal: Animal,e: React.FormEvent) => void;
+  setUpdateData?:  React.Dispatch<React.SetStateAction<any | null>>
   onAdopt?: (animal: Animal) => void;
   addFavorite?:(animalId:string)=>void;
   removeFavorite?:(animalId:string)=>void;
   showActions?: boolean;
+  showAdminActions?: boolean
 }
 
-export default function AnimalCard({ animal, favorite,onViewDetails, onAdopt,addFavorite,removeFavorite, showActions = true }: AnimalCardProps) {
+export default function AnimalCard({ animal, favorite,onViewDetails, onUpdate,onDelete,setUpdateData,onAdopt,addFavorite,removeFavorite, showActions = true, showAdminActions }: AnimalCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Available':
@@ -99,6 +104,28 @@ export default function AnimalCard({ animal, favorite,onViewDetails, onAdopt,add
             >
               <Heart className="h-4 w-4 mr-2" />
               Adopt
+            </Button>
+          )}
+        </CardFooter>
+      )}
+      {showAdminActions && (
+        <CardFooter className="p-4 pt-0 flex gap-2">
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={()=>{setUpdateData?.({...animal,temperament:animal.temperament.toString(),vaccinations:animal.vaccinations.toString(),medicalHistory:animal.medicalHistory.toString()});onUpdate?.(animal)}}
+          >
+            <Info className="h-4 w-4 mr-2" />
+            Update
+          </Button>
+          {animal.status === 'Available' && (
+            <Button 
+              className="flex-1 bg-[#1ABC9C] hover:bg-[#16a085]"
+              onClick={(e:React.FormEvent)=>{onDelete?.(animal,e)}}
+            >
+              
+              <X className="h-4 w-4 mr-2"/>
+              Delete
             </Button>
           )}
         </CardFooter>
